@@ -27,7 +27,8 @@ def sat_vapor_temperature(e_s):
 
 
 def sat_mixing_ratio(p,T):
-    sat_mixing_ratio= esp* (sat_vapor_pressure(T)/(p-sat_vapor_pressure(T)))
+    sat_p=sat_vapor_pressure(T)
+    sat_mixing_ratio= esp* (sat_p/(p-sat_p))
     return(sat_mixing_ratio)
 
 
@@ -36,7 +37,8 @@ def sat_mixing_ratio(p,T):
 
 def mixing_ratio_line(p,w_s):
     e_s=(w_s*p)/(esp + w_s)
-    mixing_ratio_line=sat_vapor_temperature(e_s)
+    sat_T=sat_vapor_temperature(e_s)
+    mixing_ratio_line=sat_T
     return(mixing_ratio_line)
 
 
@@ -44,7 +46,8 @@ def mixing_ratio_line(p,w_s):
 
 
 def RH(T,p,w):
-    RH = (w/sat_mixing_ratio(T, p)) * 100
+    sat_mr=sat_mixing_ratio(T,p)
+    RH = (w/sat_mr) * 100
     return(RH)
 
 
@@ -52,15 +55,16 @@ def RH(T,p,w):
 
 
 def T_LCL(T, p, w):
-    T_LCL = (1/ (1/((T + C_to_K)-55)-(np.log(RH(T,p,w)/100)/2840)))+ 55
+    rel_hum=RH(T,p,w)
+    T_LCL = (1/ (1/((T + C_to_K)-55)-(np.log(rel_hum/100)/2840)))+ 55
     return(T_LCL)
 
 
 # In[8]:
 
 
-def theta_dry(T, p, p_0=1000.0):
-    theta_dry = (T + C_to_K)* (p_0/(p))**k_dry
+def theta_dry(theta, p, p_0=1000.0):
+    theta_dry = (theta)* (p/p_0)**k_dry
     return(theta_dry)
 
 
@@ -68,7 +72,8 @@ def theta_dry(T, p, p_0=1000.0):
 
 
 def pseudoeq_potential_T(T, p, w, p_0=1000.0):
-    pseudoeq_potential_T = (T + C_to_K)*(p_0/p)**(0.2845*(1-(0.28*w))) * np.exp((3.373/T_LCL(T, p, w)-0.00254) *(w*10**3) *(1+(0.81*w)))
+    LCL_T=T_LCL(T, p, w)
+    pseudoeq_potential_T = (T + C_to_K)*(p_0/p)**(0.2845*(1-(0.28*w))) * np.exp((3.373/LCL_T-0.00254) *(w*10**3) *(1+(0.81*w)))
     return(pseudoeq_potential_T)
 
 
@@ -77,6 +82,7 @@ def pseudoeq_potential_T(T, p, w, p_0=1000.0):
 
 def theta_ep_field(T, p, p_0=1000.0):
     w_s= sat_mixing_ratio(T,p)
-    theta_ep_field= pseudoeq_potential_T(T + C_to_K, p, w_s)
+    theta_ep=pseudoeq_potential_T(T+ C_to_K, p, w_s)
+    theta_ep_field= theta_ep
     return(theta_ep_field)
 
