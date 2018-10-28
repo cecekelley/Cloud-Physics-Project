@@ -11,6 +11,7 @@ k_dry= 0.2854
 
 
 def sat_vapor_pressure(T):
+    """PPK equ 10, temp is in celcius"""
     e_s= 6.112*np.exp((17.67*T)/(243.5+T))
     return(e_s)
 
@@ -19,6 +20,7 @@ def sat_vapor_pressure(T):
 
 
 def sat_vapor_temperature(e_s):
+    """PPK equ 11, temp comes back in celcius"""
     sat_vap_temp= (243.5*np.log(e_s)-440.8)/(19.48-np.log(e_s))
     return(sat_vap_temp)
 
@@ -27,6 +29,7 @@ def sat_vapor_temperature(e_s):
 
 
 def sat_mixing_ratio(p,T):
+    """p is in mb, temp is in celcius"""
     e_s=sat_vapor_pressure(T)
     print(e_s)
     sat_mixing_ratio= (esp*e_s)/(p-e_s)
@@ -38,6 +41,7 @@ def sat_mixing_ratio(p,T):
 
 
 def mixing_ratio_line(p,w_s):
+    """equation to give the lines of mixing ratios. p in mb, w_s in kg/kg, temp is returned in celcius"""
     e_s=(w_s*p)/(esp + w_s)
     mix_rat_line=sat_vapor_temperature(e_s)
     return(mix_rat_line)
@@ -48,6 +52,7 @@ print(mix_rat)
 
 
 def RH(T,p,w):
+    """p in mb, temp in celcius, w in kg/kg(unitless)"""
     print("w=", w)
     R_H = (w/sat_mixing_ratio(p,T)) * 100
     return(R_H)
@@ -57,6 +62,7 @@ def RH(T,p,w):
 
 
 def T_LCL(T, p, w):
+    """PPK equ 22, p in mb, temp in kelvin, w in kg/kg"""
     R_H=RH(T, p, w)
     term_a= 1/((T+C_to_K)-55)
     term_b= (np.log(R_H/100))/2840
@@ -70,6 +76,7 @@ def T_LCL(T, p, w):
 
 
 def theta_dry(theta, p, p_0=1000.0):
+    """PPK equ 23, p in mb, temp in kelvin"""
     theta_d = (theta)* (p/p_0)**k_dry
     return(theta_d)
 
@@ -78,10 +85,11 @@ def theta_dry(theta, p, p_0=1000.0):
 
 
 def pseudoeq_potential_T(T, p, w, p_0=1000.0):
+    """PPK equ 43, p in mb, temp in kelvin, w in kg/kg"""
     Temp_LCL=T_LCL(T, p, w)
-    part_1=(T+C_to_K)*(p_0/p)**(0.2854*(1-0.28*(w*10**(-3))))
+    part_1=(T+C_to_K)*(p_0/p)**(0.2854*(1-0.28*w))
     part_2= (3.376/Temp_LCL)-0.00254
-    part_3= (w*10**3)*(1+0.81*(w*10**-3))
+    part_3= (w*10**3)*(1+0.81*w)
     theta_ep= part_1* np.exp(part_2*part_3)
     return (theta_ep)
 
@@ -90,6 +98,7 @@ def pseudoeq_potential_T(T, p, w, p_0=1000.0):
 
 
 def theta_ep_field(T, p, p_0=1000.0):
+    """to make the moist adiabat lines. temp in celcius, p in mb, w in kg/kg"""
     w= sat_mixing_ratio(T,p)
     theta_ep_field= pseudoeq_potential_T(T, p, w, p_0)
     return(theta_ep_field)
