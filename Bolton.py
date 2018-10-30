@@ -12,15 +12,16 @@ k_dry= 0.2854
 
 def sat_vapor_pressure(T):
     """PPK equ 10, temp is in celcius"""
-    e_s= 6.112*np.exp((17.67*T)/(243.5+T))
-    return(e_s)
+    sat_vapor_pressure= 6.112 * np.exp((17.67*T)/(T+243.5))
+    return(sat_vapor_pressure)
 
 
 # In[3]:
 
 
-def sat_vapor_temperature(e_s):
+def sat_vapor_temperature(e_s, T):
     """PPK equ 11, temp comes back in celcius"""
+    e_s=sat_vapor_pressure(T)
     sat_vap_temp= (243.5*np.log(e_s)-440.8)/(19.48-np.log(e_s))
     return(sat_vap_temp)
 
@@ -31,8 +32,9 @@ def sat_vapor_temperature(e_s):
 def sat_mixing_ratio(p,T):
     """p is in mb, temp is in celcius"""
     e_s=sat_vapor_pressure(T)
-    print(e_s)
-    sat_mixing_ratio= (esp*e_s)/(p-e_s)
+    print("e_s=", e_s)
+    sat_mixing_ratio= esp*(e_s/(p-e_s))
+    print("sat_mix_rat=", sat_mixing_ratio)
     return(sat_mixing_ratio)
 
 
@@ -40,21 +42,19 @@ def sat_mixing_ratio(p,T):
 # In[5]:
 
 
-def mixing_ratio_line(p,w_s):
+def mixing_ratio_line(p,w_s, T):
     """equation to give the lines of mixing ratios. p in mb, w_s in kg/kg, temp is returned in celcius"""
     e_s=(w_s*p)/(esp + w_s)
     mix_rat_line=sat_vapor_temperature(e_s)
     return(mix_rat_line)
 
 
-mix_rat=mixing_ratio_line(900, .012)
-print(mix_rat)
-
 
 def RH(T,p,w):
     """p in mb, temp in celcius, w in kg/kg(unitless)"""
     print("w=", w)
-    R_H = (w/sat_mixing_ratio(p,T)) * 100
+    sat_mix_rat=sat_mixing_ratio(p,T)
+    R_H = (w/sat_mix_rat) * 100
     return(R_H)
 
 
@@ -99,7 +99,7 @@ def pseudoeq_potential_T(T, p, w, p_0=1000.0):
 
 def theta_ep_field(T, p, p_0=1000.0):
     """to make the moist adiabat lines. temp in celcius, p in mb, w in kg/kg"""
-    w= sat_mixing_ratio(T,p)
-    theta_ep_field= pseudoeq_potential_T(T, p, w, p_0)
+    w_s= sat_mixing_ratio(T,p)
+    theta_ep_field= pseudoeq_potential_T(T, p, w_s, p_0)
     return(theta_ep_field)
 
