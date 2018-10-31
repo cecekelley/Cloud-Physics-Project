@@ -1,6 +1,6 @@
 import numpy as np
 
-def parse_SPC(Sounding_for_CP_Project, skip_rows=6):
+def parse_SPC(filename, skip_rows=6):
     dtype= [ ('p', float),       #pressure,mb
              ('z', float),       #altitude, m
              ('T', float),       #temperature, C
@@ -8,5 +8,5 @@ def parse_SPC(Sounding_for_CP_Project, skip_rows=6):
              ('wind_dir', float), #wind direction, degrees
              ('wind_spd', float), #wind speed, knots
            ]
-    data = np.genfromtxt(Sounding_for_CP_Project, dtype=dtype, skip_header=skip_rows, delimiter=',')
+    data = np.genfromtxt(filename, dtype=dtype, skip_header=skip_rows, delimiter=',')
     return (data)
