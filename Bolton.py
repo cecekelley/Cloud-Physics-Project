@@ -13,6 +13,7 @@ k_dry= 0.2854
 def sat_vapor_pressure(T):
     """PPK equ 10, temp is in celcius"""
     sat_vapor_pressure= 6.112 * np.exp((17.67*T)/(T+243.5))
+    print("SVP=", sat_vapor_pressure)
     return(sat_vapor_pressure)
 
 
@@ -21,8 +22,8 @@ def sat_vapor_pressure(T):
 
 def sat_vapor_temperature(e_s, T):
     """PPK equ 11, temp comes back in celcius"""
-    e_s=sat_vapor_pressure(T)
-    sat_vap_temp= (243.5*np.log(e_s)-440.8)/(19.48-np.log(e_s))
+    SVP=sat_vapor_pressure(T)
+    sat_vap_temp= (243.5*np.log(SVP)-440.8)/(19.48-np.log(SVP))
     return(sat_vap_temp)
 
 
@@ -32,7 +33,7 @@ def sat_vapor_temperature(e_s, T):
 def sat_mixing_ratio(p,T):
     """p is in mb, temp is in celcius"""
     e_s=sat_vapor_pressure(T)
-    print("e_s=", e_s)
+    #print("e_s=", e_s)
     sat_mixing_ratio= esp*(e_s/(p-e_s))
     print("sat_mix_rat=", sat_mixing_ratio)
     return(sat_mixing_ratio)
@@ -52,7 +53,9 @@ def mixing_ratio_line(p,w_s, T):
 
 def RH(T,p,w):
     """p in mb, temp in celcius, w in kg/kg(unitless)"""
-    print("w=", w)
+    #print("w=", w)
+    #print("T=", T)
+    #print("p=", p)
     sat_mix_rat=sat_mixing_ratio(p,T)
     R_H = (w/sat_mix_rat) * 100
     return(R_H)
