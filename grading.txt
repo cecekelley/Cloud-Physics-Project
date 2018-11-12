@@ -1,0 +1,2 @@
+For x_max, T_max, p_bottom would be necessary for 50 C max along bottom axis. -1
+Theta_e should be larger than theta_ep -2
